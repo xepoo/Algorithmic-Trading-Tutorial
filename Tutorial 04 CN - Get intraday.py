@@ -1,16 +1,21 @@
-import tushare
-import pandas
+import tushare as ts
+import pandas as pd
 import datetime
 import os
+import time
 
+
+pro = ts.pro_api('3313904c0168e7bee0811581a6c668a2236a261475987a71640bb140')
+
+#
 def stockPriceIntraday(ticker, folder):
 	# Step 1. Get intraday data online
-	intraday = tushare.get_hist_data(ticker, ktype='5')
-
+	#intraday = ts.get_hist_data(ticker, ktype='5', pause=1)
+	intraday = ts.pro_bar(ticker, api=pro, freq='5min')
 	# Step 2. If the history exists, append
 	file = folder+'/'+ticker+'.csv'
 	if os.path.exists(file):
-		history = pandas.read_csv(file, index_col=0)
+		history = pd.read_csv(file, index_col=0)
 		intraday.append(history)
 
 	# Step 3. Inverse based on index
@@ -21,22 +26,31 @@ def stockPriceIntraday(ticker, folder):
 	intraday.to_csv(file)
 	print ('Intraday for ['+ticker+'] got.')
 
-# Step 1. Get tickers online
-tickersRawData = tushare.get_stock_basics()
-tickers = tickersRawData.index.tolist()
-
-# Step 2. Save the ticker list to a local file
+# Step 1. Get and save tickers basic data online from Tushare
+#tickersRawData = ts.get_stock_basics()
+stock_basic = pro.stock_basic()
 dateToday = datetime.datetime.today().strftime('%Y%m%d')
-file = '../02. Data/00. TickerListCN/TickerList_'+dateToday+'.csv'
-tickersRawData.to_csv(file)
-print ('Tickers saved.')
+file = '../stock_data/00. TickerListCN/StockBasic_TickerList_'+dateToday+'.csv'
+stock_basic.to_csv(file, encoding="utf_8_sig")
 
-# Step 3. Get stock price (intraday) for all
+stock_company = pro.stock_company(exchange='SZSE')
+stock_company = stock_company.append(pro.stock_company(exchange='SSE'))
+dateToday = datetime.datetime.today().strftime('%Y%m%d')
+file = '../stock_data/00. TickerListCN/StockCompany_TickerList_'+dateToday+'.csv'
+stock_company.to_csv(file, encoding="utf_8_sig")
+
+tickers = stock_basic['ts_code'].tolist()
+print ('Tickers saved.')
+time.sleep(13)
+# Step 2. Get stock price min bar (intraday) for all
 for i, ticker in enumerate(tickers):
 	try:
 		print ('Intraday', i, '/', len(tickers))
-		stockPriceIntraday(ticker, folder='../02. Data/01. IntradayCN')
+		stockPriceIntraday(ticker, folder='../stock_data/01. IntradayCN')
+		time.sleep(13)
 	except:
 		pass
 print ('Intraday for all stocks got.')
+
+
 
