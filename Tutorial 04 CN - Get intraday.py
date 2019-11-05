@@ -10,8 +10,9 @@ pro = ts.pro_api('3313904c0168e7bee0811581a6c668a2236a261475987a71640bb140')
 #
 def stockPriceIntraday(ticker, folder):
 	# Step 1. Get intraday data online
-	#intraday = ts.get_hist_data(ticker, ktype='5', pause=1)
-	intraday = ts.pro_bar(ticker, api=pro, freq='5min')
+	#intraday = ts.get_hist_data(ticker, ktype='D', pause=1)
+	intraday = pro.daily(ts_code=ticker)
+	#intraday = ts.pro_bar(ticker, api=pro, freq='5min')
 	# Step 2. If the history exists, append
 	file = folder+'/'+ticker+'.csv'
 	if os.path.exists(file):
