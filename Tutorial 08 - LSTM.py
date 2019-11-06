@@ -10,7 +10,7 @@ rcParams['figure.figsize'] = 20,10
 
 CONST_TICKER = '000001.SZ'
 TRAIN_TEST_RATIO = 0.9
-PREDICT_DAYS = 60
+PREDICT_DAYS = 1
 
 # 选取 date 和 close 两列
 df = pd.read_csv('../stock_data/01. IntradayCN/' + CONST_TICKER + '.csv')
@@ -23,6 +23,12 @@ for i in range(0,len(data)):
 
 # setting index
 new_data.index = new_data['trade_date']
+
+# #plot
+# plt.figure(figsize=(16,8))
+# plt.plot(df['close'], label='Close Price history')
+# plt.show()
+
 new_data.drop('trade_date', axis=1, inplace=True)
 
 # 分成 train and test
@@ -73,3 +79,5 @@ test = new_data[part_num:]
 test['Predictions'] = closing_price
 plt.plot(train['close'])
 plt.plot(test[['close','Predictions']])
+plt.show()
+plt.show()
